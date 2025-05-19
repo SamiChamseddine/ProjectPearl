@@ -1,0 +1,33 @@
+git init
+
+# Create proper .gitignore
+@"
+# Django
+*.sqlite3
+*.pyc
+__pycache__/
+.env
+*.env
+db.sqlite3
+media/
+staticfiles/
+
+# Node/Vite
+node_modules/
+dist/
+.temp/
+.cache/
+.DS_Store
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+"@ | Out-File -FilePath .\.gitignore -Encoding utf8
