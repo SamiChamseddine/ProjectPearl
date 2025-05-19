@@ -104,7 +104,10 @@ WSGI_APPLICATION = 'osu_backend.wsgi.application'
 
 import dj_database_url
 DATABASES = {
-    'default': "postgresql://osu_database_owner:npg_WsSzcqh40bwj@ep-dawn-cherry-a2yyi8gz-pooler.eu-central-1.aws.neon.tech/osu_database?sslmode=require"
+    'default': dj_database_url.config(
+        default=os.getenv('DATABASE_URL'),
+        conn_max_age=600
+    )
 }
 
 
