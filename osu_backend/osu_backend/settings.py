@@ -104,7 +104,7 @@ WSGI_APPLICATION = 'osu_backend.wsgi.application'
 
 import dj_database_url
 DATABASES = {
-    'default': dj_database_url.config(default=os.getenv('DATABASE_URL'))
+    'default': "postgresql://osu_database_owner:npg_WsSzcqh40bwj@ep-dawn-cherry-a2yyi8gz-pooler.eu-central-1.aws.neon.tech/osu_database?sslmode=require"
 }
 
 
@@ -150,8 +150,7 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
-    "http://127.0.0.1:5173"
+    "https://projectpearlfrontend.onrender.com",
 ]
 CORS_ALLOW_CREDENTIALS = True
 

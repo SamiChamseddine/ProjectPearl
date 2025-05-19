@@ -17,7 +17,7 @@ export default function App() {
     const fetchBeatmaps = async () => {
       try {
         const res = await axios.get(
-          "http://localhost:8000/api/beatmaps/search/"
+          "https://projectpearlbackend.onrender.com/api/beatmaps/search/"
         );
         setBeatmaps(res.data.results);
       } catch (err) {
