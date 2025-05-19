@@ -59,7 +59,7 @@ const BeatmapSlider = () => {
       }
 
       const response = await fetch(
-        `http://localhost:8000/api/beatmaps/search?${new URLSearchParams(
+        `https://projectpearlbackend.onrender.com/api/beatmaps/search?${new URLSearchParams(
           queryParams
         )}`
       );
