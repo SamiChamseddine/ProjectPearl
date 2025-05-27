@@ -74,7 +74,7 @@ export default function BeatmapSearchForm({ initialFilters, onSearch }) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="bg-black p-2 rounded-xl shadow-xl border border-black min-h-screen"
+      className="bg-black p-2 rounded-xl shadow-xl border border-black "
     >
       
 
@@ -83,11 +83,11 @@ export default function BeatmapSearchForm({ initialFilters, onSearch }) {
         <div className="space-y-6">
           {/* Difficulty Filters */}
           <div className="bg-black rounded-xl shadow-xl border border-gray-800">
-            <h3 className="text-xl font-bold text-blue-400 mb-4 drop-shadow-[0_0_8px_#3b82f6]">
+            <h3 className="text-xl font-bold text-blue-400 mb-4 drop-shadow-[0_0_8px_#3b82f6] p-2">
               Difficulty Filters
             </h3>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 p-2">
               {/* BPM */}
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-300">
@@ -145,7 +145,7 @@ export default function BeatmapSearchForm({ initialFilters, onSearch }) {
               </div>
 
               {/* Circle Size */}
-              <div className="space-y-2">
+              <div className="space-y-2 ">
                 <label className="text-sm font-medium text-gray-300">
                   Circle Size
                 </label>
@@ -209,7 +209,7 @@ export default function BeatmapSearchForm({ initialFilters, onSearch }) {
           </div>
 
           {/* Stats Filters */}
-          <div className="bg-black rounded-xl shadow-xlp-2 border border-gray-800">
+          <div className="bg-black rounded-xl shadow-xlp-2 border border-gray-800 p-2">
             <h3 className="text-xl font-bold text-green-400 mb-4 drop-shadow-[0_0_8px_#10b981]">
               Stats Filters
             </h3>
@@ -302,7 +302,7 @@ export default function BeatmapSearchForm({ initialFilters, onSearch }) {
         {/* Right Column */}
         <div className="space-y-6">
           {/* Metadata */}
-          <div className="bg-black rounded-xl shadow-xlp-2 border border-gray-800">
+          <div className="bg-black rounded-xl shadow-xlp-2 border border-gray-800 p-2">
             <h3 className="text-xl font-bold text-cyan-400 mb-4 drop-shadow-[0_0_8px_#06b6d4]">
               Metadata
             </h3>
@@ -385,7 +385,7 @@ export default function BeatmapSearchForm({ initialFilters, onSearch }) {
           </div>
 
           {/* Date Range */}
-          <div className="bg-black rounded-xl shadow-xlp-2 border border-gray-800">
+          <div className="bg-black rounded-xl shadow-xlp-2 border border-gray-800 p-2">
             <h3 className="text-xl font-bold text-purple-400 mb-4 drop-shadow-[0_0_8px_#a855f7]">
               Date Range
             </h3>

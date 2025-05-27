@@ -9,6 +9,7 @@ import LoginForm from "./components/LoginForm";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 export default function App() {
+  const VITE_API_LINK = import.meta.env.VITE_API_LINK
   const [beatmaps, setBeatmaps] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -17,7 +18,7 @@ export default function App() {
     const fetchBeatmaps = async () => {
       try {
         const res = await axios.get(
-          "https://projectpearlbackend.onrender.com/api/beatmaps/search/"
+          `${VITE_API_LINK}/api/beatmaps/search/`
         );
         setBeatmaps(res.data.results);
       } catch (err) {

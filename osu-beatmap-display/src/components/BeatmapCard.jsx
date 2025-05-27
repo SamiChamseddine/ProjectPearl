@@ -65,7 +65,7 @@ export default function BeatmapCard({
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+        <div className="grid grid-cols-4 md:grid-cols-4 gap-3">
           {[
             { label: "BPM", value: beatmap.bpm },
             { label: "CS", value: beatmap.cs },
@@ -78,6 +78,8 @@ export default function BeatmapCard({
             },
             { label: "favourite", value: beatmapset.favourite_count ?? 0 },
             { label: "PLAYS", value: beatmapset.play_count || 0 },
+            { label: "OD", value: beatmap.accuracy || 0 },
+            { label: "MAX COMBO", value: beatmap.max_combo || 0 },
           ].map(({ label, value }, i) => (
             <div
               key={i}

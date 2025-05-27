@@ -231,6 +231,8 @@ class BeatmapSearchView(APIView):
             "play_count": int(beatmap.beatmapset.play_count or 0),
             "ranked_date": beatmap.beatmapset.ranked_date,
             "tags": beatmap.beatmapset.tags,
+            "accuracy": float(beatmap.accuracy),
+            "max_combo": beatmap.max_combo,
         }
 
 class RegisterView(APIView):

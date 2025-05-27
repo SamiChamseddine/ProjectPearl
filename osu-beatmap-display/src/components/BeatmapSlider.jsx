@@ -4,6 +4,8 @@ import AudioPlayer from "./AudioPlayer";
 import BeatmapSearchForm from "./BeatmapSearchForm";
 
 const BeatmapSlider = () => {
+  const API_LINK = import.meta.env.VITE_API_LINK;
+  const BOT_LINK = import.meta.env.VITE_BOT_LINK;
   const [groupedBeatmapsets, setGroupedBeatmapsets] = useState([]);
   const [viewMode, setViewMode] = useState("slider");
   const [currentSetIndex, setCurrentSetIndex] = useState(0);
@@ -14,6 +16,7 @@ const BeatmapSlider = () => {
   const [hasMoreResults, setHasMoreResults] = useState(true);
   const [searchError, setSearchError] = useState(null);
   const [selectedDiffIndices, setSelectedDiffIndices] = useState({});
+  const [isDownloadingAll, setIsDownloadingAll] = useState(false);
 
   const [filters, setFilters] = useState({
     bpmMin: "",
@@ -36,7 +39,41 @@ const BeatmapSlider = () => {
     creator: "",
     artist: "",
     title: "",
+    accuracy: "",
   });
+
+  const downloadAllBeatmaps = async () => {
+    alert(
+      "Your browser might block multiple pop-up downloads, please remember to enable multiple pop-ups for this website."
+    );
+    setIsDownloadingAll(true);
+    let downloadedCount = 0;
+
+    try {
+      for (const set of groupedBeatmapsets) {
+        const downloadUrl = `${BOT_LINK}${set.beatmapsetId}`;
+
+        // Try window.open() first (best for downloads)
+        window.open(downloadUrl, "_blank");
+        downloadedCount++;
+        console.log(
+          `Downloading ${downloadedCount}/${groupedBeatmapsets.length}`
+        );
+
+        // Wait 3 seconds before next download (adjust if needed)
+        if (downloadedCount < groupedBeatmapsets.length) {
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+        }
+      }
+    } catch (error) {
+      console.error("Download error:", error);
+      alert(
+        `Partially completed: ${downloadedCount}/${groupedBeatmapsets.length}`
+      );
+    } finally {
+      setIsDownloadingAll(false);
+    }
+  };
 
   const fetchBeatmaps = async (params = {}, append = false) => {
     if (isLoading) return;
@@ -59,9 +96,7 @@ const BeatmapSlider = () => {
       }
 
       const response = await fetch(
-        `https://projectpearlbackend.onrender.com/api/beatmaps/search?${new URLSearchParams(
-          queryParams
-        )}`
+        `${API_LINK}/api/beatmaps/search?${new URLSearchParams(queryParams)}`
       );
 
       if (!response.ok) throw new Error(`API error: ${response.status}`);
@@ -118,11 +153,13 @@ const BeatmapSlider = () => {
         difficulty_rating: beatmap.difficulty_rating, // Alternative if you use both
         ar: beatmap.ar,
         cs: beatmap.cs,
+        accuracy: beatmap.accuracy,
         bpm: beatmap.bpm,
         length: beatmap.total_length, // Make sure this matches
         total_length: beatmap.total_length, // Alternative
         mode: beatmap.mode,
         beatmapset_id: beatmap.beatmapset_id, // Critical for audio/image
+        max_combo: beatmap.max_combo,
       });
     });
 
@@ -157,7 +194,7 @@ const BeatmapSlider = () => {
         <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.04)_50%,transparent_50%)] bg-[size:100%_2px] opacity-20 mix-blend-overlay" />
       </div>
 
-      <div className="relative z-10 container mx-auto px-6 py-10">
+      <div className="relative z-10 container mx-auto px-6 py-6">
         {/* Beatmap Search Form */}
         <BeatmapSearchForm initialFilters={filters} onSearch={handleSearch} />
 
@@ -252,7 +289,7 @@ const BeatmapSlider = () => {
                         <button
                           onClick={() =>
                             window.open(
-                              `https://osu.ppy.sh/beatmapsets/${currentBeatmap.beatmapset_id}#osu/${currentBeatmap.id}`,
+                              `${BOT_LINK}${currentBeatmap.beatmapset_id}`,
                               "_blank"
                             )
                           }
@@ -266,7 +303,6 @@ const BeatmapSlider = () => {
                 </div>
               </>
             ) : (
-              // Grid View
               // Grid View
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-10">
                 {groupedBeatmapsets.map((set, setIndex) => {
@@ -325,13 +361,13 @@ const BeatmapSlider = () => {
                         <button
                           onClick={() =>
                             window.open(
-                              `https://osu.ppy.sh/beatmapsets/${selectedBeatmap.beatmapset_id}#osu/${selectedBeatmap.id}`,
+                              `${BOT_LINK}${selectedBeatmap.beatmapset_id}`,
                               "_blank"
                             )
                           }
                           className="px-4 py-1 text-sm rounded-md bg-blue-600 hover:bg-blue-700 text-white"
                         >
-                          View Set
+                          Download
                         </button>
                       </div>
                     </div>
@@ -339,10 +375,25 @@ const BeatmapSlider = () => {
                 })}
               </div>
             )}
-
+            <div className="flex justify-center mt-1">
+              <button
+                onClick={downloadAllBeatmaps}
+                disabled={isDownloadingAll}
+                className="bg-gradient-to-r from-pink-500 to-fuchsia-700 px-6 py-2 rounded-lg font-semibold text-white shadow-[0_0_14px_rgba(255,0,255,0.4)] hover:brightness-110 transition disabled:opacity-50"
+              >
+                {isDownloadingAll ? (
+                  <>
+                    <span className="inline-block mr-2">Downloading...</span>
+                    <span className="inline-block h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                  </>
+                ) : (
+                  "Download All"
+                )}
+              </button>
+            </div>
             {/* Load More Button (appears in both views) */}
             {hasMoreResults && (
-              <div className="flex justify-center mt-12">
+              <div className="flex justify-center mt-1">
                 <button
                   onClick={handleLoadMore}
                   disabled={isLoading}

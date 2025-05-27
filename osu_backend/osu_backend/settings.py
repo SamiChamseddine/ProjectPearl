@@ -103,11 +103,13 @@ WSGI_APPLICATION = 'osu_backend.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 import dj_database_url
-#postgresql://osu_database_owner:npg_WsSzcqh40bwj@ep-dawn-cherry-a2yyi8gz-pooler.eu-central-1.aws.neon.tech/osu_database?sslmode=require
+import os
+
 DATABASES = {
     'default': dj_database_url.config(
-        default=os.getenv('DATABASE_URL'),
-        conn_max_age=600
+        default=os.environ.get('DATABASE_URL'),  # Use os.environ.get() instead of os.getenv()
+        conn_max_age=600,
+        ssl_require=True  # Explicitly enforce SSL
     )
 }
 
@@ -153,7 +155,7 @@ USE_TZ = True
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ALLOWED_ORIGINS = [
-    "https://projectpearlfrontend.onrender.com",
+    os.getenv('FRONTEND_URL'),
 ]
 CORS_ALLOW_CREDENTIALS = True
 
@@ -166,5 +168,5 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage' 
 
 # For CSS/JS/images from your apps
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),  # Any additional static folders
+    #os.path.join(BASE_DIR, 'static'),  # Any additional static folders
 ]
