@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import BeatmapCard from "./BeatmapCard";
 import AudioPlayer from "./AudioPlayer";
 import BeatmapSearchForm from "./BeatmapSearchForm";
+import { usePerformance } from "../context/PerformanceContext";
 
 const BeatmapSlider = () => {
   const API_LINK = import.meta.env.VITE_API_LINK;
@@ -17,6 +18,7 @@ const BeatmapSlider = () => {
   const [searchError, setSearchError] = useState(null);
   const [selectedDiffIndices, setSelectedDiffIndices] = useState({});
   const [isDownloadingAll, setIsDownloadingAll] = useState(false);
+  const { performanceMode, setPerformanceMode } = usePerformance();
 
   const [filters, setFilters] = useState({
     bpmMin: "",
@@ -215,7 +217,24 @@ const BeatmapSlider = () => {
               </button>
             ))}
           </div>
+          <div className="inline-flex rounded-full shadow-lg border border-blue-400/40 backdrop-blur-md bg-black/30 overflow-hidden">
+      {["high", "medium", "low"].map((mode) => (
+        <button
+          key={mode}
+          onClick={() => setPerformanceMode(mode)}
+          className={`px-4 py-2 text-sm font-bold tracking-wide uppercase transition-all ${
+            performanceMode === mode
+              ? "bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-[0_0_14px_rgba(59,130,246,0.6)]"
+              : "text-blue-300 hover:bg-black/40"
+          }`}
+        >
+          {mode} effects
+        </button>
+      ))}
+    </div>
         </div>
+        
+        
 
         {/* Loading Spinner (initial load) */}
         {isLoading && !groupedBeatmapsets.length ? (
