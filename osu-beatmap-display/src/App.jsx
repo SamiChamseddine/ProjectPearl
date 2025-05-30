@@ -7,19 +7,29 @@ import Navbar from "./components/Navbar";
 import LoginForm from "./components/LoginForm";
 //import RegisterForm from "./components/RegisterForm";
 import ProtectedRoute from "./components/ProtectedRoute";
+import { useTheme } from "./context/ThemeContext.";
 
 export default function App() {
-  const VITE_API_LINK = import.meta.env.VITE_API_LINK
+  const VITE_API_LINK = import.meta.env.VITE_API_LINK;
   const [beatmaps, setBeatmaps] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { theme } = useTheme();
+
+  const themeStyles = {
+    neon: {
+      bg: "bg-black",
+    },
+    flashbang: {
+      bg: "bg-white/90",
+    },
+  };
+  const currentTheme = themeStyles[theme];
 
   useEffect(() => {
     const fetchBeatmaps = async () => {
       try {
-        const res = await axios.get(
-          `${VITE_API_LINK}/api/beatmaps/search/`
-        );
+        const res = await axios.get(`${VITE_API_LINK}/api/beatmaps/search/`);
         setBeatmaps(res.data.results);
       } catch (err) {
         setError("Failed to load beatmaps");
@@ -34,12 +44,12 @@ export default function App() {
   return (
     <Router>
       <AuthProvider>
-        <div className="min-h-screen bg-black text-white">
+        <div className={`min-h-screen ${currentTheme.bg} text-white`}>
           <Navbar />
           <main className="container mx-auto px-4 py-8">
             <Routes>
-              <Route 
-                path="/" 
+              <Route
+                path="/"
                 element={
                   loading ? (
                     <div className="flex justify-center items-center h-64">
@@ -49,25 +59,27 @@ export default function App() {
                     <div className="text-center text-red-400 py-8">{error}</div>
                   ) : (
                     <ProtectedRoute>
-                    <BeatmapSlider beatmaps={beatmaps} />
+                      <BeatmapSlider beatmaps={beatmaps} />
                     </ProtectedRoute>
                   )
-                } 
+                }
               />
               <Route path="/login" element={<LoginForm />} />
               {/*<Route path="/register" element={<RegisterForm />} />*/}
-              
+
               {/* Example protected route */}
-              <Route 
-                path="/profile" 
+              <Route
+                path="/profile"
                 element={
                   <ProtectedRoute>
                     <div className="text-center">
-                      <h2 className="text-2xl text-pink-400 mb-4">User Profile</h2>
+                      <h2 className="text-2xl text-pink-400 mb-4">
+                        User Profile
+                      </h2>
                       {/* Profile content goes here */}
                     </div>
                   </ProtectedRoute>
-                } 
+                }
               />
             </Routes>
           </main>

@@ -3,6 +3,7 @@ import BeatmapCard from "./BeatmapCard";
 import AudioPlayer from "./AudioPlayer";
 import BeatmapSearchForm from "./BeatmapSearchForm";
 import { usePerformance } from "../context/PerformanceContext";
+import { useTheme } from "../context/ThemeContext.";
 
 const BeatmapSlider = () => {
   const API_LINK = import.meta.env.VITE_API_LINK;
@@ -19,6 +20,7 @@ const BeatmapSlider = () => {
   const [selectedDiffIndices, setSelectedDiffIndices] = useState({});
   const [isDownloadingAll, setIsDownloadingAll] = useState(false);
   const { performanceMode, setPerformanceMode } = usePerformance();
+  const { theme, toggleTheme } = useTheme();
 
   const [filters, setFilters] = useState({
     bpmMin: "",
@@ -54,15 +56,12 @@ const BeatmapSlider = () => {
     try {
       for (const set of groupedBeatmapsets) {
         const downloadUrl = `${BOT_LINK}${set.beatmapsetId}`;
-
-        // Try window.open() first (best for downloads)
         window.open(downloadUrl, "_blank");
         downloadedCount++;
         console.log(
           `Downloading ${downloadedCount}/${groupedBeatmapsets.length}`
         );
 
-        // Wait 3 seconds before next download (adjust if needed)
         if (downloadedCount < groupedBeatmapsets.length) {
           await new Promise((resolve) => setTimeout(resolve, 1000));
         }
@@ -84,7 +83,6 @@ const BeatmapSlider = () => {
     setSearchError(null);
 
     try {
-      // Build query params
       const queryParams = {
         limit: "20",
         ...Object.fromEntries(
@@ -92,7 +90,6 @@ const BeatmapSlider = () => {
         ),
       };
 
-      // Only add cursor if we're appending to existing results
       if (append && cursor) {
         queryParams.cursor = cursor;
       }
@@ -104,10 +101,7 @@ const BeatmapSlider = () => {
       if (!response.ok) throw new Error(`API error: ${response.status}`);
 
       const { results, cursor: next_cursor } = await response.json();
-      console.log("API Response:", results); // Debug log
-
       const newGroups = groupByBeatmapset(results);
-      console.log("Grouped Data:", newGroups); // Debug log
 
       setGroupedBeatmapsets((prev) =>
         append ? [...prev, ...newGroups] : newGroups
@@ -133,34 +127,32 @@ const BeatmapSlider = () => {
     beatmaps.forEach((beatmap) => {
       if (!groupsMap.has(beatmap.beatmapset_id)) {
         groupsMap.set(beatmap.beatmapset_id, {
-          // BeatmapSet metadata
           beatmapsetId: beatmap.beatmapset_id,
-          title: beatmap.title, // From backend's beatmapset.title
-          artist: beatmap.artist, // From backend's beatmapset.artist
-          creator: beatmap.creator, // From backend's beatmapset.creator
-          favourite_count: beatmap.favourite_count, // From beatmapset
-          play_count: beatmap.play_count, // From beatmapset
-          ranked_date: beatmap.ranked_date, // From beatmapset
-          status: beatmap.status, // From beatmapset
-          tags: beatmap.tags, // From beatmapset
+          title: beatmap.title,
+          artist: beatmap.artist,
+          creator: beatmap.creator,
+          favourite_count: beatmap.favourite_count,
+          play_count: beatmap.play_count,
+          ranked_date: beatmap.ranked_date,
+          status: beatmap.status,
+          tags: beatmap.tags,
           beatmaps: [],
         });
       }
 
       groupsMap.get(beatmap.beatmapset_id).beatmaps.push({
-        // Individual beatmap data
         id: beatmap.id,
         version: beatmap.version,
-        stars: beatmap.difficulty_rating, // Make sure this matches what you call it
-        difficulty_rating: beatmap.difficulty_rating, // Alternative if you use both
+        stars: beatmap.difficulty_rating,
+        difficulty_rating: beatmap.difficulty_rating,
         ar: beatmap.ar,
         cs: beatmap.cs,
         accuracy: beatmap.accuracy,
         bpm: beatmap.bpm,
-        length: beatmap.total_length, // Make sure this matches
-        total_length: beatmap.total_length, // Alternative
+        length: beatmap.total_length,
+        total_length: beatmap.total_length,
         mode: beatmap.mode,
-        beatmapset_id: beatmap.beatmapset_id, // Critical for audio/image
+        beatmapset_id: beatmap.beatmapset_id,
         max_combo: beatmap.max_combo,
       });
     });
@@ -179,67 +171,157 @@ const BeatmapSlider = () => {
     fetchBeatmaps(newFilters, false);
   };
 
-  // Current beatmap data
   const currentSet = groupedBeatmapsets[currentSetIndex];
   const currentBeatmap = currentSet?.beatmaps[currentBeatmapIndex];
 
-  // Initial load
   useEffect(() => {
     fetchBeatmaps(filters);
   }, []);
 
+  // Theme-specific styles
+  const themeStyles = {
+    neon: {
+      bg: "bg-black",
+      text: "text-white",
+      accent: "pink",
+      secondary: "fuchsia",
+      grain: "opacity-30 mix-blend-soft-light",
+      scanlines: "opacity-20 mix-blend-overlay",
+      button: "from-pink-500 to-fuchsia-600",
+      shadow: "shadow-[0_0_14px_rgba(255,0,255,0.6)]",
+      border: "border-pink-400/40",
+      hover: "hover:bg-black/40",
+    },
+    flashbang: {
+      bg: "bg-white",
+      text: "text-black",
+      accent: "blue",
+      secondary: "cyan",
+      grain: "opacity-10 mix-blend-multiply",
+      scanlines: "opacity-10 mix-blend-multiply",
+      button: "from-blue-500 to-cyan-400",
+      shadow: "shadow-[0_0_20px_rgba(0,200,255,0.8)]",
+      border: "border-blue-400/60",
+      hover: "hover:bg-white/80",
+    },
+  };
+
+  const currentTheme = themeStyles[theme];
+
+  const playFlashbangSound = () => {
+    const audio = new Audio("/sounds/flashbang.mp3");
+    audio.volume = 0.05;
+    audio.play().catch((e) => console.log("Audio play failed:", e));
+  };
+  const playGahSound = () => {
+    const audio = new Audio("/sounds/gah.mp3");
+    audio.volume = 0.05;
+    audio.play().catch((e) => console.log("Audio play failed:", e));
+  };
+
   return (
-    <div className="bg-black min-h-screen text-white font-orbitron overflow-x-hidden">
-      {/* Neon Grain and Scanlines */}
+    <div
+      className={`${currentTheme.bg} min-h-screen ${currentTheme.text} font-orbitron overflow-x-hidden`}
+    >
+      {/* Theme-specific background effects */}
       <div className="fixed inset-0 z-0 pointer-events-none">
-        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/asfalt-dark.png')] opacity-30 mix-blend-soft-light" />
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.04)_50%,transparent_50%)] bg-[size:100%_2px] opacity-20 mix-blend-overlay" />
+        <div
+          className={`absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/asfalt-dark.png')] ${currentTheme.grain}`}
+        />
+        <div
+          className={`absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.04)_50%,transparent_50%)] bg-[size:100%_2px] ${currentTheme.scanlines}`}
+        />
       </div>
 
       <div className="relative z-10 container mx-auto px-6 py-6">
+        <div className="grid grid-cols-2">
+          {/* Effect Toggle Button */}
+          <div
+            className={`inline-flex shadow-lg border ${
+              theme === "neon" ? "border-black" : "border-black"
+            } backdrop-blur-md ${
+              theme === "neon" ? "bg-black/30" : "bg-white/30"
+            } overflow-hidden`}
+          >
+            {["high", "medium", "low"].map((mode) => (
+              <button
+                key={mode}
+                onClick={() => setPerformanceMode(mode)}
+                className={`px-4 py-2 text-sm font-bold tracking-wide uppercase transition-all ${
+                  performanceMode === mode
+                    ? `bg-gradient-to-r ${
+                        theme === "neon"
+                          ? "from-blue-500 to-indigo-600"
+                          : "from-cyan-400 to-blue-500"
+                      } text-white ${
+                        theme === "neon"
+                          ? "shadow-[0_0_14px_rgba(59,130,246,0.6)]"
+                          : "shadow-[0_0_14px_rgba(34,211,238,0.6)]"
+                      }`
+                    : `${
+                        theme === "neon" ? "text-blue-300" : "text-cyan-600"
+                      } ${currentTheme.hover}`
+                }`}
+              >
+                {mode} effects
+              </button>
+            ))}
+          </div>
+          {/* Theme Toggle Button */}
+          <div className="flex justify-end mb-4 ">
+            <button
+              onClick={() => {
+                toggleTheme();
+                if (theme === "neon") {
+                  // Only play when switching to flashbang
+                  playFlashbangSound();
+                } else if (theme === "flashbang") {
+                  playGahSound();
+                }
+              }}
+              className={`bg-gradient-to-r ${currentTheme.button} px-6 py-2 rounded-lg font-semibold text-white ${currentTheme.shadow} hover:brightness-110 transition disabled:opacity-50`}
+            >
+              {theme === "neon" ? " Flashbang Mode" : " Neon Mode"}
+            </button>
+          </div>
+        </div>
+
         {/* Beatmap Search Form */}
         <BeatmapSearchForm initialFilters={filters} onSearch={handleSearch} />
 
         {/* View Mode Toggle */}
-        <div className="flex justify-center my-6">
-          <div className="inline-flex rounded-full shadow-lg border border-pink-400/40 backdrop-blur-md bg-black/30 overflow-hidden">
+        <div className="flex justify-center my-6 gap-4">
+          <div
+            className={`inline-flex rounded-full shadow-lg border ${
+              currentTheme.border
+            } backdrop-blur-md ${
+              theme === "neon" ? "bg-black/30" : "bg-white/30"
+            } overflow-hidden`}
+          >
             {["slider", "grid"].map((mode) => (
               <button
                 key={mode}
                 onClick={() => setViewMode(mode)}
                 className={`px-5 py-2 text-sm font-bold tracking-wide uppercase transition-all ${
                   viewMode === mode
-                    ? "bg-gradient-to-r from-pink-500 to-fuchsia-600 text-white shadow-[0_0_14px_rgba(255,0,255,0.6)]"
-                    : "text-pink-300 hover:bg-black/40"
+                    ? `bg-gradient-to-r ${currentTheme.button} text-white ${currentTheme.shadow}`
+                    : `${currentTheme.text} ${currentTheme.hover}`
                 }`}
               >
                 {mode === "slider" ? "Slider View" : "Grid View"}
               </button>
             ))}
           </div>
-          <div className="inline-flex rounded-full shadow-lg border border-blue-400/40 backdrop-blur-md bg-black/30 overflow-hidden">
-      {["high", "medium", "low"].map((mode) => (
-        <button
-          key={mode}
-          onClick={() => setPerformanceMode(mode)}
-          className={`px-4 py-2 text-sm font-bold tracking-wide uppercase transition-all ${
-            performanceMode === mode
-              ? "bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-[0_0_14px_rgba(59,130,246,0.6)]"
-              : "text-blue-300 hover:bg-black/40"
-          }`}
-        >
-          {mode} effects
-        </button>
-      ))}
-    </div>
         </div>
-        
-        
 
-        {/* Loading Spinner (initial load) */}
+        {/* Loading Spinner */}
         {isLoading && !groupedBeatmapsets.length ? (
           <div className="flex justify-center items-center h-64">
-            <div className="h-12 w-12 rounded-full border-4 border-pink-500 border-t-transparent animate-spin" />
+            <div
+              className={`h-12 w-12 rounded-full border-4 ${
+                theme === "neon" ? "border-pink-500" : "border-blue-500"
+              } border-t-transparent animate-spin`}
+            />
           </div>
         ) : groupedBeatmapsets.length > 0 ? (
           <>
@@ -252,11 +334,19 @@ const BeatmapSlider = () => {
                       setCurrentSetIndex((prev) => Math.max(prev - 1, 0))
                     }
                     disabled={currentSetIndex === 0}
-                    className="px-4 py-2 rounded-md bg-pink-600 hover:bg-pink-700 disabled:opacity-50 transition shadow-lg"
+                    className={`px-4 py-2 rounded-md ${
+                      theme === "neon"
+                        ? "bg-pink-600 hover:bg-pink-700"
+                        : "bg-blue-600 hover:bg-blue-500"
+                    } disabled:opacity-50 transition shadow-lg`}
                   >
                     ← Prev Set
                   </button>
-                  <h2 className="text-xl font-bold tracking-wider text-pink-300">
+                  <h2
+                    className={`text-xl font-bold tracking-wider ${
+                      theme === "neon" ? "text-pink-300" : "text-blue-600"
+                    }`}
+                  >
                     Set {currentSetIndex + 1} of {groupedBeatmapsets.length}
                   </h2>
                   <button
@@ -266,7 +356,11 @@ const BeatmapSlider = () => {
                       )
                     }
                     disabled={currentSetIndex === groupedBeatmapsets.length - 1}
-                    className="px-4 py-2 rounded-md bg-pink-600 hover:bg-pink-700 disabled:opacity-50 transition shadow-lg"
+                    className={`px-4 py-2 rounded-md ${
+                      theme === "neon"
+                        ? "bg-pink-600 hover:bg-pink-700"
+                        : "bg-blue-600 hover:bg-blue-500"
+                    } disabled:opacity-50 transition shadow-lg`}
                   >
                     Next Set →
                   </button>
@@ -282,8 +376,16 @@ const BeatmapSlider = () => {
                         onClick={() => setCurrentBeatmapIndex(i)}
                         className={`w-3 h-3 rounded-full ${
                           i === currentBeatmapIndex
-                            ? "bg-pink-500 shadow-[0_0_8px_rgba(255,0,255,0.6)]"
-                            : "bg-gray-600 hover:bg-pink-400"
+                            ? `${
+                                theme === "neon"
+                                  ? "bg-pink-500 shadow-[0_0_8px_rgba(255,0,255,0.6)]"
+                                  : "bg-blue-500 shadow-[0_0_8px_rgba(0,200,255,0.8)]"
+                              }`
+                            : `${
+                                theme === "neon"
+                                  ? "bg-gray-600 hover:bg-pink-400"
+                                  : "bg-gray-300 hover:bg-blue-400"
+                              }`
                         }`}
                         aria-label={`Go to difficulty ${i + 1}`}
                       />
@@ -303,6 +405,7 @@ const BeatmapSlider = () => {
                               : currentBeatmap.id
                           )
                         }
+                        theme={theme}
                       />
                       <div className="flex justify-center mt-4">
                         <button
@@ -312,7 +415,11 @@ const BeatmapSlider = () => {
                               "_blank"
                             )
                           }
-                          className="px-6 py-2 rounded-md bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-md"
+                          className={`px-6 py-2 rounded-md ${
+                            theme === "neon"
+                              ? "bg-blue-600 hover:bg-blue-700"
+                              : "bg-cyan-500 hover:bg-cyan-400"
+                          } text-white font-semibold shadow-md`}
                         >
                           Download
                         </button>
@@ -349,8 +456,16 @@ const BeatmapSlider = () => {
                             }
                             className={`px-2 py-1 text-xs rounded ${
                               idx === selectedDiffIndex
-                                ? "bg-pink-600 text-white"
-                                : "bg-gray-700 hover:bg-gray-600"
+                                ? `${
+                                    theme === "neon"
+                                      ? "bg-pink-600"
+                                      : "bg-blue-500"
+                                  } text-white`
+                                : `${
+                                    theme === "neon"
+                                      ? "bg-gray-700 hover:bg-gray-600"
+                                      : "bg-gray-300 hover:bg-gray-400"
+                                  }`
                             }`}
                           >
                             {beatmap.version}
@@ -375,6 +490,7 @@ const BeatmapSlider = () => {
                           );
                         }}
                         compactMode={true}
+                        theme={theme}
                       />
                       <div className="flex justify-center mt-2">
                         <button
@@ -384,7 +500,11 @@ const BeatmapSlider = () => {
                               "_blank"
                             )
                           }
-                          className="px-4 py-1 text-sm rounded-md bg-blue-600 hover:bg-blue-700 text-white"
+                          className={`px-4 py-1 text-sm rounded-md ${
+                            theme === "neon"
+                              ? "bg-blue-600 hover:bg-blue-700"
+                              : "bg-cyan-500 hover:bg-cyan-400"
+                          } text-white`}
                         >
                           Download
                         </button>
@@ -398,7 +518,7 @@ const BeatmapSlider = () => {
               <button
                 onClick={downloadAllBeatmaps}
                 disabled={isDownloadingAll}
-                className="bg-gradient-to-r from-pink-500 to-fuchsia-700 px-6 py-2 rounded-lg font-semibold text-white shadow-[0_0_14px_rgba(255,0,255,0.4)] hover:brightness-110 transition disabled:opacity-50"
+                className={`bg-gradient-to-r ${currentTheme.button} px-6 py-2 rounded-lg font-semibold text-white ${currentTheme.shadow} hover:brightness-110 transition disabled:opacity-50`}
               >
                 {isDownloadingAll ? (
                   <>
@@ -410,13 +530,13 @@ const BeatmapSlider = () => {
                 )}
               </button>
             </div>
-            {/* Load More Button (appears in both views) */}
+            {/* Load More Button */}
             {hasMoreResults && (
               <div className="flex justify-center mt-1">
                 <button
                   onClick={handleLoadMore}
                   disabled={isLoading}
-                  className="bg-gradient-to-r from-pink-500 to-fuchsia-700 px-6 py-2 rounded-lg font-semibold text-white shadow-[0_0_14px_rgba(255,0,255,0.4)] hover:brightness-110 transition disabled:opacity-50"
+                  className={`bg-gradient-to-r ${currentTheme.button} px-6 py-2 rounded-lg font-semibold text-white ${currentTheme.shadow} hover:brightness-110 transition disabled:opacity-50`}
                 >
                   {isLoading ? "Loading..." : "Load More"}
                 </button>
@@ -426,12 +546,20 @@ const BeatmapSlider = () => {
             {/* Loading indicator for additional items */}
             {isLoading && groupedBeatmapsets.length > 0 && (
               <div className="flex justify-center py-4">
-                <div className="h-8 w-8 rounded-full border-4 border-pink-500 border-t-transparent animate-spin" />
+                <div
+                  className={`h-8 w-8 rounded-full border-4 ${
+                    theme === "neon" ? "border-pink-500" : "border-blue-500"
+                  } border-t-transparent animate-spin`}
+                />
               </div>
             )}
           </>
         ) : (
-          <div className="text-center py-16 text-pink-300 text-lg">
+          <div
+            className={`text-center py-16 ${
+              theme === "neon" ? "text-pink-300" : "text-blue-600"
+            } text-lg`}
+          >
             {Object.values(filters).some((v) => v && v !== "ranked")
               ? "No beatmaps match your filters"
               : "Search for beatmaps using the filters above"}
@@ -449,7 +577,11 @@ const BeatmapSlider = () => {
 
         {/* Error Handling */}
         {searchError && (
-          <div className="text-red-400 text-center py-6 font-bold text-lg">
+          <div
+            className={`text-center py-6 font-bold text-lg ${
+              theme === "neon" ? "text-red-400" : "text-red-600"
+            }`}
+          >
             Error: {searchError}
           </div>
         )}
@@ -458,7 +590,9 @@ const BeatmapSlider = () => {
         {groupedBeatmapsets.length > 10 && (
           <button
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-            className="fixed bottom-6 right-6 bg-pink-600 p-3 rounded-full shadow-lg z-50"
+            className={`fixed bottom-6 right-6 ${
+              theme === "neon" ? "bg-pink-600" : "bg-blue-500"
+            } p-3 rounded-full shadow-lg z-50`}
             aria-label="Back to top"
           >
             ↑
