@@ -238,7 +238,7 @@ const BeatmapSlider = () => {
           {/* Effect Toggle Button */}
           <div
             className={`inline-flex shadow-lg border ${
-              theme === "neon" ? "border-black" : "border-black"
+              theme === "neon" ? "border-black" : "border-white"
             } backdrop-blur-md ${
               theme === "neon" ? "bg-black/30" : "bg-white/30"
             } overflow-hidden`}
