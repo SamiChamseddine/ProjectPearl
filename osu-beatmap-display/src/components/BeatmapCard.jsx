@@ -13,62 +13,83 @@ export default function BeatmapCard({
   const [imageError, setImageError] = useState(false);
   const controls = useAnimation();
   const imageUrl = `https://assets.ppy.sh/beatmaps/${beatmap.beatmapset_id}/covers/cover@2x.jpg`;
+  const [bpmPulse, setBpmPulse] = useState(null);
+  const effects = {
+    high: {
+      
+      scale: isPlaying ? 1.03 : 1, 
+      hoverScale: 1.01,
+      shadow: "0_0_30px_rgba(255,0,255,0.2)", 
+      backdropBlur: "xs", 
+      saturate: 1.7, 
+      contrast: 1.2, 
+      brightness: 1.1, 
+      noiseOpacity: 0.15, 
+      scanlineOpacity: 0.5, 
+      glow: true, 
+      animations: true,
+      animationSpeed: 0.2, 
+      filterIntensity: 1, 
+    },
+    medium: {
+      scale: isPlaying ? 1.02 : 1,
+      hoverScale: 1.005,
+      shadow: "0_0_15px_rgba(255,0,255,0.15)",
+      backdropBlur: "none",
+      saturate: 1.15,
+      contrast: 1.1,
+      brightness: 1.03,
+      noiseOpacity: 0.05, 
+      scanlineOpacity: 0.05,
+      glow: true, 
+      animations: true,
+      animationSpeed: 0.15, 
+      filterIntensity: 0.8, 
+    },
+    low: {
+      scale: 1,
+      hoverScale: 1,
+      shadow: "0_0_5px_rgba(255,0,255,0.1)",
+      backdropBlur: "none",
+      saturate: 1,
+      contrast: 1,
+      brightness: 1,
+      noiseOpacity: 0,
+      scanlineOpacity: 0,
+      glow: false,
+      animations: false,
+      animationSpeed: 0,
+      filterIntensity: 0.5,
+    },
+  };
+  const currentEffects = effects[performanceMode];
 
   useEffect(() => {
-    controls.start({ scale: isPlaying ? 1.05 : 1 });
-  }, [isPlaying, controls]);
+    if (isPlaying && beatmap.bpm && currentEffects.animations) {
+      const interval = (60 / beatmap.bpm) * 1000; 
 
-  const effects = {
-  high: {
-    // Premium visual experience (smooth but not excessive)
-    scale: isPlaying ? 1.03 : 1,  // More subtle zoom
-    hoverScale: 1.01,
-    shadow: "0_0_30px_rgba(255,0,255,0.2)",  // More restrained glow
-    backdropBlur: "xs",  // Very subtle blur
-    saturate: 1.7,      // Slightly boosted colors
-    contrast: 1.2,      // Mild contrast boost
-    brightness: 1.1,   // Slight brightness
-    noiseOpacity: 0.15,  // Barely noticeable grain
-    scanlineOpacity: 0.5, // Very subtle scanlines
-    glow: true,         // Keep glow but more subtle
-    animations: true,
-    animationSpeed: 0.2, // Snappy animations
-    filterIntensity: 1   // Full filter quality
-  },
-  medium: {
-    // Balanced performance/quality
-    scale: isPlaying ? 1.02 : 1,
-    hoverScale: 1.005,
-    shadow: "0_0_15px_rgba(255,0,255,0.15)",
-    backdropBlur: "none",
-    saturate: 1.15,
-    contrast: 1.1,
-    brightness: 1.03,
-    noiseOpacity: 0.05,  // Minimal texture
-    scanlineOpacity: 0.05,
-    glow: true,         // Smaller glow
-    animations: true,
-    animationSpeed: 0.15, // Faster animations
-    filterIntensity: 0.8 // Slightly reduced filter quality
-  },
-  low: {
-    // Maximum performance
-    scale: 1,
-    hoverScale: 1,
-    shadow: "0_0_5px_rgba(255,0,255,0.1)",
-    backdropBlur: "none",
-    saturate: 1,
-    contrast: 1,
-    brightness: 1,
-    noiseOpacity: 0,
-    scanlineOpacity: 0,
-    glow: false,
-    animations: false,
-    animationSpeed: 0,
-    filterIntensity: 0.5 // Basic filters only
-  }
-};
-  const currentEffects = effects[performanceMode];
+      controls.start({
+        scale: [1, 1.02, 1],
+        transition: {
+          duration: interval / 1000,
+          repeat: Infinity,
+          ease: "easeInOut",
+        },
+      });
+    } else if (isPlaying && !beatmap.bpm && currentEffects.animations) {
+      controls.start({
+        scale: [1, 1.01, 1],
+        transition: {
+          duration: 0.6,
+          repeat: Infinity,
+          ease: "easeInOut",
+        },
+      });
+    } else {
+      controls.stop();
+      controls.set({ scale: 1 });
+    }
+  }, [isPlaying, beatmap.bpm, currentEffects.animations, controls]);
 
   return (
     <motion.div
@@ -76,7 +97,7 @@ export default function BeatmapCard({
         currentEffects.shadow ? `shadow-[${currentEffects.shadow}]` : ""
       }`}
       initial={currentEffects.animations ? { scale: 0.95 } : {}}
-      animate={currentEffects.animations ? { scale: currentEffects.scale } : {}}
+      animate={{}}
       whileHover={
         currentEffects.animations ? { scale: currentEffects.hoverScale } : {}
       }

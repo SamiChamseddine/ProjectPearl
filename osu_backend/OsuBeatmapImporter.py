@@ -22,13 +22,24 @@ logging.basicConfig(
 
 class OsuBeatmapImporter:
     def __init__(self):
-        # Database connection
+        import urllib.parse as urlparse
+
+        url = os.getenv("DATABASE_URL")
+        if not url: 
+            raise Exception("DATABASE_URL not set in environment")
+
+        url_parts = urlparse.urlparse(url)
+        sslmode = dict(urlparse.parse_qsl(url_parts.query)).get("sslmode", "prefer")
+
         self.db_conn = psycopg2.connect(
-            dbname=os.getenv('DB_NAME', 'osu_beatmaps'),
-            user=os.getenv('DB_USER', 'osu_user'),
-            password=os.getenv('DB_PASSWORD'),
-            host=os.getenv('DB_HOST', 'localhost')
+            dbname=url_parts.path[1:],
+            user=url_parts.username,
+            password=url_parts.password,
+            host=url_parts.hostname,
+            port=url_parts.port or 5432,
+            sslmode=sslmode
         )
+
         self.cursor = self.db_conn.cursor()
         
         # Osu API credentials

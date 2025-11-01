@@ -36,29 +36,23 @@ class BeatmapSearchView(APIView):
         """Optimized search pipeline that guarantees page size of beatmapsets"""
         limit = self._get_limit(params)
     
-        # Build combined query with proper ordering
         base_query = self._build_combined_query(params)
     
-        # Apply cursor pagination
         if cursor := params.get("cursor"):
             base_query = self._apply_cursor_pagination(base_query, cursor)
     
-        # Get distinct beatmapset IDs with proper ordering
         beatmapset_ids = (
             base_query.order_by("-beatmapset__ranked_date", "-beatmapset__id")
                      .values_list('beatmapset_id', flat=True)
                      .distinct()
         )
     
-        # Apply limit + 1 to check for more pages
         beatmapset_ids = list(beatmapset_ids[:limit + 1])
 
-        # Determine if there are more results
         has_more = len(beatmapset_ids) > limit
         if has_more:
             beatmapset_ids = beatmapset_ids[:limit]
     
-        # Get the actual beatmaps for these sets (one per set) with proper ordering
         beatmaps = (
             Beatmap.objects
             .filter(beatmapset_id__in=beatmapset_ids)
@@ -66,10 +60,8 @@ class BeatmapSearchView(APIView):
             .order_by("-beatmapset__ranked_date", "-beatmapset__id", "-difficulty_rating")
         )
     
-        # Format results
         results = [self._format_beatmap(b) for b in beatmaps]
     
-        # Calculate next cursor using the last beatmapset
         next_cursor = None
         if has_more and beatmapset_ids:
             last_set = BeatmapSet.objects.get(id=beatmapset_ids[-1])
@@ -81,29 +73,23 @@ class BeatmapSearchView(APIView):
         """Build a query that handles all filters efficiently"""
         query = Beatmap.objects.select_related("beatmapset")
 
-        # Base filter - only ranked maps
         query = query.filter(beatmapset__ranked_date__isnull=False)
 
-        # Apply all beatmapset filters
         query = self._apply_beatmapset_filters(query, params)
 
-        # Apply all beatmap filters
         query = self._apply_beatmap_filters(query, params)
 
-        # Default ordering
         return query.order_by(
             "-beatmapset__ranked_date", "-beatmapset__id", "-difficulty_rating"
         )
 
     def _apply_beatmapset_filters(self, query, params):
         """Apply filters that affect the beatmapset"""
-        # Status filter
         if status_values := params.get("status"):
             status_list = [s.strip() for s in status_values.split(",") if s.strip()]
             if status_list:
                 query = query.filter(beatmapset__status__in=status_list)
 
-        # Text filters
         text_fields = ["creator", "artist", "title"]
         for field in text_fields:
             if value := params.get(field):
@@ -111,7 +97,6 @@ class BeatmapSearchView(APIView):
                 for term in terms:
                     query = query.filter(**{f"beatmapset__{field}__icontains": term})
 
-        # Date filters
         date_filters = [
             ("created_after", "beatmapset__ranked_date__gte"),
             ("created_before", "beatmapset__ranked_date__lte"),
@@ -128,7 +113,6 @@ class BeatmapSearchView(APIView):
                 except (ValueError, TypeError) as e:
                     logger.warning(f"Invalid {param_key} date: {date_str} - {str(e)}")
 
-        # Numeric beatmapset filters
         range_filters = [
             ("favouritesMin", "favouritesMax", "beatmapset__favourite_count"),
             ("playCountMin", "playCountMax", "beatmapset__play_count"),
@@ -145,18 +129,16 @@ class BeatmapSearchView(APIView):
                 except (ValueError, TypeError):
                     logger.warning(f"Invalid {max_key} value: {max_val}")
 
-        # Tag filtering
         if tags := params.get("tags"):
             tag_list = [tag.strip().lower() for tag in tags.split(",") if tag.strip()]
             for tag in tag_list:
-                spaced_tag = " ".join(tag)  # Convert "japanese" to "j a p a n e s e"
+                spaced_tag = " ".join(tag) 
                 query = query.filter(beatmapset__tags__icontains=spaced_tag)
 
         return query
 
     def _apply_beatmap_filters(self, query, params):
         """Apply filters that affect individual beatmaps"""
-        # Difficulty filters
         range_filters = [
             ("arMin", "arMax", "ar"),
             ("csMin", "csMax", "cs"),
@@ -176,7 +158,6 @@ class BeatmapSearchView(APIView):
                 except (ValueError, TypeError):
                     logger.warning(f"Invalid {max_key} value: {max_val}")
 
-        # Mode filter
         if mode_values := params.get("mode"):
             valid_modes = {"0", "1", "2", "3"}
             modes = [m for m in mode_values.split(",") if m in valid_modes]
@@ -207,7 +188,7 @@ class BeatmapSearchView(APIView):
         """Get and validate the limit parameter"""
         try:
             limit = int(params.get("limit", self.DEFAULT_LIMIT))
-            return min(max(limit, 1), self.MAX_LIMIT)  # Ensure between 1 and MAX_LIMIT
+            return min(max(limit, 1), self.MAX_LIMIT) 
         except (ValueError, TypeError):
             return self.DEFAULT_LIMIT
 

@@ -2559,3 +2559,44 @@ DETAIL:  A field with precision 4, scale 2 must round to an absolute value less 
 2025-05-18 00:47:21,348 - INFO - Processed 100 beatmapsets (433 beatmaps)
 2025-05-18 00:47:26,754 - INFO - Processed 200 beatmapsets (812 beatmaps)
 2025-05-18 00:47:28,313 - INFO - Processed 300 beatmapsets (1194 beatmaps)
+2025-05-30 15:06:03,300 - INFO - Starting beatmap import
+2025-05-30 15:06:07,563 - ERROR - Failed to get osu! token: 400 Client Error: Bad Request for url: https://osu.ppy.sh/oauth/token
+2025-05-30 15:06:49,056 - INFO - Starting beatmap import
+2025-05-30 15:07:43,033 - INFO - Processed 100 beatmapsets (390 beatmaps)
+2025-05-30 15:10:22,270 - INFO - Starting beatmap import
+2025-05-30 15:11:17,517 - INFO - Processed 100 beatmapsets (390 beatmaps)
+2025-05-30 15:13:39,555 - INFO - Processed 200 beatmapsets (812 beatmaps)
+2025-05-30 15:14:33,404 - INFO - Processed 300 beatmapsets (1183 beatmaps)
+2025-05-30 15:15:33,782 - INFO - Processed 400 beatmapsets (1614 beatmaps)
+2025-05-30 15:16:30,226 - INFO - Processed 500 beatmapsets (2012 beatmaps)
+2025-05-30 15:17:27,881 - INFO - Processed 600 beatmapsets (2390 beatmaps)
+2025-05-30 15:18:18,994 - INFO - Processed 700 beatmapsets (2722 beatmaps)
+2025-05-30 15:18:25,130 - ERROR - Failed to process beatmapset 2159609: numeric field overflow
+DETAIL:  A field with precision 4, scale 2 must round to an absolute value less than 10^2.
+
+2025-05-30 15:19:21,237 - INFO - Processed 800 beatmapsets (3154 beatmaps)
+2025-05-30 15:20:15,990 - INFO - Processed 900 beatmapsets (3533 beatmaps)
+2025-05-30 15:21:13,213 - INFO - Processed 1000 beatmapsets (3943 beatmaps)
+2025-05-30 15:22:18,353 - INFO - Processed 1100 beatmapsets (4361 beatmaps)
+2025-05-30 15:23:15,228 - INFO - Processed 1200 beatmapsets (4786 beatmaps)
+2025-05-30 15:24:11,629 - INFO - Processed 1300 beatmapsets (5199 beatmaps)
+2025-05-30 15:25:10,167 - INFO - Processed 1400 beatmapsets (5631 beatmaps)
+2025-05-30 15:26:03,119 - INFO - Processed 1500 beatmapsets (6011 beatmaps)
+2025-05-30 15:26:59,494 - INFO - Processed 1600 beatmapsets (6376 beatmaps)
+2025-05-30 15:27:58,724 - INFO - Processed 1700 beatmapsets (6819 beatmaps)
+2025-05-30 15:28:54,743 - INFO - Processed 1800 beatmapsets (7219 beatmaps)
+2025-05-30 15:29:51,390 - INFO - Processed 1900 beatmapsets (7641 beatmaps)
+2025-05-30 15:30:45,396 - INFO - Processed 2000 beatmapsets (8016 beatmaps)
+2025-05-30 15:31:40,002 - INFO - Processed 2100 beatmapsets (8404 beatmaps)
+2025-05-30 15:32:38,444 - INFO - Processed 2200 beatmapsets (8849 beatmaps)
+2025-05-30 15:33:34,725 - INFO - Processed 2300 beatmapsets (9263 beatmaps)
+2025-05-30 15:34:26,236 - INFO - Processed 2400 beatmapsets (9625 beatmaps)
+2025-05-30 15:35:21,832 - INFO - Processed 2500 beatmapsets (10037 beatmaps)
+2025-05-30 15:36:20,654 - INFO - Processed 2600 beatmapsets (10483 beatmaps)
+2025-05-30 15:37:19,301 - INFO - Processed 2700 beatmapsets (10919 beatmaps)
+2025-06-21 14:25:24,020 - INFO - Starting beatmap import
+2025-06-21 14:26:12,302 - INFO - Processed 100 beatmapsets (392 beatmaps)
+2025-06-21 14:27:03,778 - INFO - Processed 200 beatmapsets (844 beatmaps)
+2025-06-21 14:27:53,269 - INFO - Processed 300 beatmapsets (1245 beatmaps)
+2025-06-21 14:28:43,397 - INFO - Processed 400 beatmapsets (1669 beatmaps)
+2025-06-21 14:29:31,659 - INFO - Processed 500 beatmapsets (2084 beatmaps)

@@ -5,6 +5,7 @@ import { AuthProvider } from "./context/AuthContext";
 import BeatmapSlider from "./components/BeatmapSlider";
 import Navbar from "./components/Navbar";
 import LoginForm from "./components/LoginForm";
+import AboutPage from "./components/AboutPage";
 //import RegisterForm from "./components/RegisterForm";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { useTheme } from "./context/ThemeContext.";
@@ -27,13 +28,15 @@ export default function App() {
   const currentTheme = themeStyles[theme];
 
   useEffect(() => {
-    const fetchBeatmaps = async () => {
+    const fetchBeatmaps = async (count = 0) => {
       try {
         const res = await axios.get(`${VITE_API_LINK}/api/beatmaps/search/`);
         setBeatmaps(res.data.results);
       } catch (err) {
-        setError("Failed to load beatmaps");
-        console.error("API Error:", err);
+        if (count > 3) {
+          setError("Failed to load beatmaps after multiple attempts");
+          console.error("API Error:", err);
+        } else fetchBeatmaps(count + 1);
       } finally {
         setLoading(false);
       }
@@ -64,6 +67,7 @@ export default function App() {
                   )
                 }
               />
+              <Route path="/about" element={<AboutPage />} />
               <Route path="/login" element={<LoginForm />} />
               {/*<Route path="/register" element={<RegisterForm />} />*/}
 

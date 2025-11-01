@@ -8,6 +8,7 @@ import { useTheme } from "../context/ThemeContext.";
 const BeatmapSlider = () => {
   const API_LINK = import.meta.env.VITE_API_LINK;
   const BOT_LINK = import.meta.env.VITE_BOT_LINK;
+  const OFFICIAL_LINK = import.meta.env.VITE_OFFICIAL_LINK;
   const [groupedBeatmapsets, setGroupedBeatmapsets] = useState([]);
   const [viewMode, setViewMode] = useState("slider");
   const [currentSetIndex, setCurrentSetIndex] = useState(0);
@@ -178,7 +179,6 @@ const BeatmapSlider = () => {
     fetchBeatmaps(filters);
   }, []);
 
-  // Theme-specific styles
   const themeStyles = {
     neon: {
       bg: "bg-black",
@@ -273,7 +273,6 @@ const BeatmapSlider = () => {
               onClick={() => {
                 toggleTheme();
                 if (theme === "neon") {
-                  // Only play when switching to flashbang
                   playFlashbangSound();
                 } else if (theme === "flashbang") {
                   playGahSound();
@@ -424,12 +423,28 @@ const BeatmapSlider = () => {
                           Download
                         </button>
                       </div>
+                      <div className="flex justify-center mt-1">
+                        <button
+                          onClick={() =>
+                            window.open(
+                              `${OFFICIAL_LINK}${currentBeatmap.beatmapset_id}#osu/${currentBeatmap.id}`,
+                              "_blank"
+                            )
+                          }
+                          className={`px-6 py-2 rounded-md ${
+                            theme === "neon"
+                              ? "bg-blue-600 hover:bg-blue-700"
+                              : "bg-cyan-500 hover:bg-cyan-400"
+                          } text-white font-semibold shadow-md`}
+                        >
+                          View On Official Website
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>
               </>
             ) : (
-              // Grid View
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-10">
                 {groupedBeatmapsets.map((set, setIndex) => {
                   const hardestDiff = set.beatmaps.reduce((prev, current) =>
@@ -509,27 +524,12 @@ const BeatmapSlider = () => {
                           Download
                         </button>
                       </div>
+                      
                     </div>
                   );
                 })}
               </div>
             )}
-            <div className="flex justify-center mt-1">
-              <button
-                onClick={downloadAllBeatmaps}
-                disabled={isDownloadingAll}
-                className={`bg-gradient-to-r ${currentTheme.button} px-6 py-2 rounded-lg font-semibold text-white ${currentTheme.shadow} hover:brightness-110 transition disabled:opacity-50`}
-              >
-                {isDownloadingAll ? (
-                  <>
-                    <span className="inline-block mr-2">Downloading...</span>
-                    <span className="inline-block h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                  </>
-                ) : (
-                  "Download All"
-                )}
-              </button>
-            </div>
             {/* Load More Button */}
             {hasMoreResults && (
               <div className="flex justify-center mt-1">

@@ -6,21 +6,18 @@ const AudioPlayer = ({ audioUrl, onEnded }) => {
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(() => {
-    // Load volume from localStorage or default to 0.3 (30%)
     const savedVolume = localStorage.getItem('audioVolume');
-    return savedVolume ? Math.min(parseFloat(savedVolume), 0.5) : 0.3; // Cap at 50% if saved value is higher
+    return savedVolume ? Math.min(parseFloat(savedVolume), 0.5) : 0.3;
   });
   const [isMuted, setIsMuted] = useState(false);
   const [prevVolume, setPrevVolume] = useState(volume);
 
-  // Save volume to localStorage whenever it changes
   useEffect(() => {
     localStorage.setItem('audioVolume', volume.toString());
   }, [volume]);
 
-  // Volume control functions with limits
   const increaseVolume = () => {
-    const newVolume = Math.min(volume + 0.1, 0.5); // Max 50%
+    const newVolume = Math.min(volume + 0.1, 0.5);
     updateVolume(newVolume);
   };
 
@@ -51,7 +48,6 @@ const AudioPlayer = ({ audioUrl, onEnded }) => {
     setIsMuted(!isMuted);
   };
 
-  // Initialize audio element
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
@@ -79,7 +75,6 @@ const AudioPlayer = ({ audioUrl, onEnded }) => {
     };
   }, [audioUrl, volume, isPlaying]);
 
-  // Play/pause toggle
   const togglePlayPause = () => {
     const audio = audioRef.current;
     if (!audio) return;
@@ -92,7 +87,6 @@ const AudioPlayer = ({ audioUrl, onEnded }) => {
     setIsPlaying(!isPlaying);
   };
 
-  // Handle seeking
   const handleSeek = (e) => {
     const audio = audioRef.current;
     if (!audio) return;
@@ -102,13 +96,11 @@ const AudioPlayer = ({ audioUrl, onEnded }) => {
     setProgress(seekTime);
   };
 
-  // Handle volume slider change
   const handleVolumeChange = (e) => {
-    const newVolume = Math.min(parseFloat(e.target.value), 0.5); // Enforce 50% max
+    const newVolume = Math.min(parseFloat(e.target.value), 0.5); 
     updateVolume(newVolume);
   };
 
-  // Format time (MM:SS)
   const formatTime = (time) => {
     const minutes = Math.floor(time / 60);
     const seconds = Math.floor(time % 60);
@@ -208,7 +200,7 @@ const AudioPlayer = ({ audioUrl, onEnded }) => {
             <input
               type="range"
               min="0"
-              max="0.5" // Physically limit slider to 50%
+              max="0.5"
               step="0.01"
               value={volume}
               onChange={handleVolumeChange}
