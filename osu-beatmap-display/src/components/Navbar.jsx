@@ -54,7 +54,7 @@ const Navbar = () => {
                 >
                   About
                 </Link>
-                {user ? (
+                {/*{user ? (
                   <button
                     onClick={logout}
                     className={`${currentTheme.text} hover:${currentTheme.highlight} font-semibold tracking-wide transition-all hover:underline hover:underline-offset-4`}
@@ -68,7 +68,7 @@ const Navbar = () => {
                   >
                     Sign In
                   </a>
-                )}
+                )}*/}
               </div>
             </>
           )}
